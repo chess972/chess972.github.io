@@ -1,6 +1,67 @@
+# fichier .gitignore 
+# créé 13.12.2025 by MFH
+# d'abord, quelques sections spécifique pour divers applis,
+# puis la majorité vient du modèle "Python" choisi lors de la création
+# -------------------------
+# Général / fichiers temporaires
+# -------------------------
+*.log
+*.tmp
+*.swp
+*.bak
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# Jekyll (GitHub Pages par défaut)
+# -------------------------
+_site/              # Dossier généré par Jekyll
+.sass-cache/        # Cache Sass
+.jekyll-cache/      # Cache Jekyll
+.jekyll-metadata    # Métadonnées Jekyll
+
+# -------------------------
+# Node.js / JavaScript
+# -------------------------
+node_modules/       # Dépendances Node
+npm-debug.log*      # Logs npm
+yarn-debug.log*     # Logs Yarn
+yarn-error.log*     # Logs Yarn
+dist/               # Dossier de build
+build/              # Dossier de build
+
+# -------------------------
+# IDE / éditeurs
+# -------------------------
+.vscode/            # Config VS Code
+.idea/              # Config JetBrains
+*.sublime-workspace
+*.sublime-project
+
+# -------------------------
+# OS spécifiques
+# -------------------------
+ehthumbs.db
+Desktop.ini
+
+# -------------------------
+# Python
+# en grande partie auto-gen modèle "Python"
+# -------------------------
+
+# Environments
+.env                # Fichier d'environnement virtuel
+.envrc
+env/
+ENV/                # Virtualenv alternatif
+venv/               # Virtualenv
+.venv
+venv.bak/
+env.bak/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[codz]
+*.py[codz]     # Fichiers compilés
 *$py.class
 
 # C extensions
@@ -12,8 +73,8 @@ build/
 develop-eggs/
 dist/
 downloads/
+.eggs/              # Eggs générés
 eggs/
-.eggs/
 lib/
 lib64/
 parts/
@@ -21,9 +82,9 @@ sdist/
 var/
 wheels/
 share/python-wheels/
-*.egg-info/
 .installed.cfg
 *.egg
+*.egg-info/         # Infos paquet
 MANIFEST
 
 # PyInstaller
@@ -134,15 +195,6 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
-.env
-.envrc
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
 
 # Spyder project settings
 .spyderproject
