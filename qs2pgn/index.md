@@ -1,5 +1,8 @@
 # QueryString ↔ PGN Converter
-
+<script type="module">
+  import * as Lit from "https://unpkg.com/lit?module";
+  window.lit = Lit; // expose globally if needed
+</script>
 <script type="module" src="https://unpkg.com/chessboard-element"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 
