@@ -2,7 +2,7 @@
 <script type="module">
   import "https://unpkg.com/lit?module";
   // window.lit = Lit; // expose globally if needed
-  import "https://unpkg.com/chessboard-element";
+  import "https://unpkg.com/chessboard-element?module";
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 
