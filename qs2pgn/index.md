@@ -1,9 +1,9 @@
 # QueryString ↔ PGN Converter
 <script type="module">
-  import * as Lit from "https://unpkg.com/lit?module";
-  window.lit = Lit; // expose globally if needed
+  import "https://unpkg.com/lit?module";
+  // window.lit = Lit; // expose globally if needed
+  import "https://unpkg.com/chessboard-element";
 </script>
-<script type="module" src="https://unpkg.com/chessboard-element"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
 
 This page lets you convert text between a QueryString and PGN.
