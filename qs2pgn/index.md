@@ -1,8 +1,7 @@
 # QueryString ↔ PGN Converter
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css" />
+<script type="module" src="https://unpkg.com/chessboard-element"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
 
 This page lets you convert text between a QueryString and PGN.
 
@@ -16,8 +15,8 @@ This page lets you convert text between a QueryString and PGN.
   <button onclick="pgn2qs()" style="margin:0.5em; padding:0.5em 1em;">Convert PGN → QueryString</button>
 </div>
 <script>
-  QS=document.getElementById("qs");
-  PGN=document.getElementById("pgn");
+  const QS = document.getElementById("qs");
+  const PGN = document.getElementById("pgn");
 function qs2pgn() {
   const asciiText = QS.value;
   let hexText = "";
@@ -37,9 +36,28 @@ function pgn2qs() {
 }
 </script>
 
-<div id="board" style="width:400px;"></div>
-
+<chess-board id="board" position="start"></chess-board>
 <script>
-  var board = Chessboard('board', 'start');
+  <script>
+    const game = new Chess();
+    const board = document.getElementById("board");
+
+    // Listen for piece drops
+    board.addEventListener("drop", (event) => {
+      const move = game.move({
+        from: event.detail.source,
+        to: event.detail.target,
+        promotion: "q" // always promote to queen for simplicity
+      });
+
+      if (move === null) {
+        // Illegal move → reset board to current game state
+        board.setPosition(game.fen());
+      } else {
+        // Legal move → update board
+        board.setPosition(game.fen());
+      }
+    });
+  </script>
 </script>
 
