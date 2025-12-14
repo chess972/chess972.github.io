@@ -25,7 +25,6 @@ function qs2pgn() {
   }
   PGN.value = hexText.trim();
 }
-
 function pgn2qs() {
   const hexText = PGN.value.trim();
   let asciiText = "";
@@ -36,9 +35,9 @@ function pgn2qs() {
 }
 </script>
 
+Here's the board:
 <chess-board id="board" position="start"></chess-board>
 <script>
-  <script>
     const game = new Chess();
     const board = document.getElementById("board");
 
@@ -58,6 +57,5 @@ function pgn2qs() {
         board.setPosition(game.fen());
       }
     });
-  </script>
 </script>
 
