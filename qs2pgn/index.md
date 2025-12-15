@@ -94,9 +94,11 @@ Here's the board:
   <button id="lastBtn"  onclick="stepReplay(999);">[ =>>| ]Last</button>
 <br/>
 <chess-board position="start" draggable-pieces="true" style="width:50%;"></chess-board>
+<textarea id=debug></textarea>
 <script>
     var board = document.querySelector("chess-board"); // id="board" only needed if more than one
-
+    var debugArea = document.getElementById("debug");
+function debug(str) { debugArea.value += str+"\n"; }
     // Listen for piece drops
     board.addEventListener("drop", (event) => {
       const move = replay.move({ from: event.detail.source, to: event.detail.target,
@@ -104,7 +106,8 @@ Here's the board:
       });
       board.setPosition(replay.fen());
       if (!move) return; // move was illegal: nothing happens
-      currentIndex = replay.history().length-1;
+      const currentIndex = replay.history().length-1;
+      debug("currentIndex = "+currentIndex);
       const moves = game.history();
       if (moves.length > currentIndex && move.san != moves[currentIndex])
         /* a different move was played */
@@ -113,7 +116,7 @@ Here's the board:
         game.move(move);
         PGN.value = game.pgn();
       }
-      highlightMove(currentIndex)
+      highlightMove(currentIndex);
     });
   
     // Helper: set board to position at index
@@ -126,6 +129,7 @@ Here's the board:
       else while (step > 0 && current < moves.length) {
         step -= 1; replay.move(moves[current]); current += 1;
       } 
+      debug("current = "+current);
       board.setPosition(replay.fen());
       if (current) highlightMove(current);
     }
