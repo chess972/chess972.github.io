@@ -87,11 +87,11 @@ function pgn2qs() {
 }
 </script>
 
-Here's the board:
-  <button id="firstBtn" onclick="stepReplay(-99);">[ |<<= ] First</button>
-  <button id="prevBtn"  onclick="stepReplay( -1);">[ < ] Previous</button>
-  <button id="nextBtn"  onclick="stepReplay(  1);">[ > ]Next</button>
-  <button id="lastBtn"  onclick="stepReplay(999);">[ =>>| ]Last</button>
+Here's the board at move <input id="move_number" value="1." size=8>:
+  <button onclick="stepReplay(-99);">[ |<&lt;= ] First</button>
+  <button onclick="stepReplay( -1);">[ < ] Previous</button>
+  <button onclick="stepReplay(  1);">Next [ > ]</button>
+  <button onclick="stepReplay(999);">Last [ =&gt;>| ]</button>
 <br/>
 <chess-board position="start" draggable-pieces="true" style="width:50%;"></chess-board>
 <textarea id=debug></textarea>
@@ -111,9 +111,11 @@ function debug(str) { debugArea.value += str+"\n"; }
       debug("currentIndex = "+currentIndex);
       const moves = game.history();
       if (moves.length > currentIndex && move.san != moves[currentIndex])
-        /* a different move was played */
+        /* a different move was played: rewind */
         while (game.history().length > currentIndex) game.undo();
       if (game.history().length <= currentIndex) {
+        if (game.history().length < currentIndex) 
+          debug("game < current shouldn't happen");
         game.move(move);
         PGN.value = game.pgn();
       }
