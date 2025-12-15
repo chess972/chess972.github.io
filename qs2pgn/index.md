@@ -36,7 +36,7 @@ This page lets you convert between a QueryString and PGN.
 
 function checkboxChanged() { // uses global var QS only defined later
   if (prefixCheckbox.checked && ! QS.value.startsWith("http"))
-    QS.value = BaseUrlInput.value + QS.value; 
+    QS.value = baseUrlInput.value + QS.value; 
   if (! prefixCheckbox.checked && QS.value.startsWith("http"))
     QS.value = QS.value.includes("?") ? QS.value.substring(QS.value.indexOf("?")) : "?q=" ; 
 }
