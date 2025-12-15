@@ -99,39 +99,45 @@ Here's the board:
 
     // Listen for piece drops
     board.addEventListener("drop", (event) => {
-      const move = game.move({ from: event.detail.source, to: event.detail.target,
+      const move = replay.move({ from: event.detail.source, to: event.detail.target,
         promotion: "q" // always promote to queen for simplicity
       });
-      board.setPosition(game.fen());
-
-      if (move === null) {
-        // Illegal move → reset board to current game state
-      } else {
-        // Legal move → update board
+      board.setPosition(replay.fen());
+      if (!move) return; // move was illegal: nothing happens
+      currentIndex = replay.history().length-1;
+      const moves = game.history();
+      if (moves.length > currentIndex && move.san != moves[currentIndex])
+        /* a different move was played */
+        while (game.history().length > currentIndex) game.undo();
+      if (game.history().length <= currentIndex) {
+        game.move(move);
         PGN.value = game.pgn();
       }
+      highlightMove(currentIndex)
     });
+  
     // Helper: set board to position at index
     function stepReplay(step) { /* step = -1 : back ; step > 0 : forward ; else (0 and < -1): reset */
       let current = replay.history().length;
       const moves = game.history({ verbose: true });
       if (step == -1) {
-        if (current) replay.undo();
-      } else if (step < 1) replay.reset();
+        if (current) { replay.undo(); current -= 1; }
+      } else if (step < 1) { replay.reset(); current = 0; }
       else while (step > 0 && current < moves.length) {
         step -= 1; replay.move(moves[current]); current += 1;
       } 
       board.setPosition(replay.fen());
-      highlightMove(replay.history().length);
+      if (current) highlightMove(current);
     }
     // Highlight current move in PGN textarea
-    function highlightMove(index) {
+    function highlightMove(index) { /* note: index starts at 1 */
       const moves = game.history();
       if (index === 0) {
         PGN.setSelectionRange(0, 0);
         return;
       }
       // Find substring of PGN up to that move
+      // TODO/FIXME: the game could have "the same move" multiple times
       const pgnText = game.pgn();
       const moveStr = moves[index - 1]; // last played move
       const pos = pgnText.indexOf(moveStr);
