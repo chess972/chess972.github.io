@@ -9,7 +9,8 @@
 This page lets you convert text between a QueryString and PGN.
 
 <!-- Raw HTML block inside Markdown -->
-<div class="container" style="display:flex; justify-content:space-between; margin-top:1em;">
+<!--div class="container" style="display:flex; justify-content:space-between; margin-top:1em;"-->
+<div>
   <!-- Checkbox -->
   <label>
     <input type="checkbox" id="prefixCheckbox" onchange='checkboxChanged();'/>
@@ -38,9 +39,10 @@ This page lets you convert text between a QueryString and PGN.
     // chessQR button → set to http://chessqr.com/
     chessQRBtn.addEventListener("click", () => {
       baseUrlInput.value = ";
+    });
 ************/
 </script>
-  <br/>
+<br/>
   <textarea id="qs" placeholder="QueryString:" style="width:95%; height:50px; margin:0.5em;"></textarea>
   <textarea id="pgn" placeholder="PGN" style="width:60%; height:150px; margin:0.5em;"></textarea>
 </div>
@@ -84,7 +86,7 @@ Here's the board:
 <chess-board position="start" draggable-pieces="true"></chess-board>
 <script>
     var game = new Chess();
-    var board = querySelector("chess-board"); # id="board" only needed if more than one
+    var board = querySelector("chess-board"); // id="board" only needed if more than one
 
     // Listen for piece drops
     board.addEventListener("drop", (event) => {
