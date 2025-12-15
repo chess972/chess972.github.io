@@ -93,7 +93,6 @@ Here's the board:
 <br/>
 <chess-board position="start" draggable-pieces="true" style="width:50%;"></chess-board>
 <script>
-    var game = new Chess();
     var board = document.querySelector("chess-board"); // id="board" only needed if more than one
 
     // Listen for piece drops
