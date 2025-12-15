@@ -3,21 +3,22 @@
   import "https://unpkg.com/lit?module";
   // window.lit = Lit; // expose globally if needed
   import "https://unpkg.com/chessboard-element?module";
+  import { Chess } from "https://unpkg.com/chess.js/dist/esm/chess.js";
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<!--minified version from cloudflare
+script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script-->
 
-This page lets you convert text between a QueryString and PGN.
+This page lets you convert between a QueryString and PGN.
 
-<!-- Raw HTML block inside Markdown -->
 <!--div class="container" style="display:flex; justify-content:space-between; margin-top:1em;"-->
 <div>
   <!-- Checkbox -->
   <label>
     <input type="checkbox" id="prefixCheckbox" onchange='checkboxChanged();'/>
-    Prefix URL to QS
+    Prefix QS with
   </label>
   <!-- Input for base URL -->
-  <label for="baseUrl">Base URL:</label>
+  <label for="baseUrl">Base URL</label>
   <input type="text" id="baseUrl" size="50" />
   <button onclick="baseUrlInput.value = BaseUrl;">Reset</button>
   <button onclick="baseUrlInput.value = 'http://chessqr.com/';">chessQR</button>
@@ -31,6 +32,14 @@ This page lets you convert text between a QueryString and PGN.
   var BaseUrl = window.location.origin + window.location.pathname;
   // Initialize input with current base URL
   baseUrlInput.value = BaseUrl;
+
+function checkboxChanged() { // uses global var QS only defined later
+  if (prefixCheckbox.checked && ! QS.value.startsWith("http"))
+    QS.value = BaseUrlInput + QS.value; 
+  if (! prefixCheckbox.checked && QS.value.startsWith("http"))
+    QS.value = QS.value.includes("?") ? QS.value.substring(QS.value.indexOf("?")) : "?q=" ; 
+}
+
 /*
     // Reset button → restore current page's base URL
     resetBtn.addEventListener("click", () => {
@@ -47,17 +56,11 @@ This page lets you convert text between a QueryString and PGN.
   <textarea id="pgn" placeholder="PGN" style="width:60%; height:150px; margin:0.5em;"></textarea>
 </div>
 <script>
+  var QS = document.getElementById("qs");
+  var PGN = document.getElementById("pgn");
   var queryString = window.location.search;// e.g.: "?foo=1&bar=2"
-  var params = new URLSearchParams(window.location.search);
-  const QS = document.getElementById("qs");
-  const PGN = document.getElementById("pgn");
+  var params = new URLSearchParams(queryString);
 if (queryString) { QS.value = queryString; checkboxChanged(); }
-function checkboxChanged() {
-  if (prefixCheckbox.checked && ! QS.value.startsWith("http"))
-    QS.value = BaseUrlInput + QS.value; 
-  if (! prefixCheckbox.checked && QS.value.startsWith("http"))
-    QS.value = QS.value.includes("?") ? QS.value.substring(QS.value.indexOf("?")) : "?q=" ; 
-}
 </script>
 <div>
   <button onclick="qs2pgn()" style="margin:0.5em; padding:0.5em 1em;">Convert QueryString → PGN</button>
@@ -83,10 +86,15 @@ function pgn2qs() {
 </script>
 
 Here's the board:
-<chess-board position="start" draggable-pieces="true"></chess-board>
+  <button id="firstBtn" onclick="showPositionAt(-9999);">[ |<<= ] First</button>
+  <button id="prevBtn"  onclick="showPositionAt(   -1);">[ < ] Previous</button>
+  <button id="nextBtn"  onclick="showPositionAt(    1);">[ > ]Next</button>
+  <button id="lastBtn"  onclick="showPositionAt( 9999);">[ =>>| ]Last</button>
+<br/>
+<chess-board position="start" draggable-pieces="true" width="50%"></chess-board>
 <script>
     var game = new Chess();
-    var board = querySelector("chess-board"); // id="board" only needed if more than one
+    var board = document.querySelector("chess-board"); // id="board" only needed if more than one
 
     // Listen for piece drops
     board.addEventListener("drop", (event) => {
@@ -102,5 +110,40 @@ Here's the board:
         PGN.value = game.pgn();
       }
     });
-</script>
+/*
+    document.getElementById("firstBtn").addEventListener("click", () => showPositionAt(0));
+    document.getElementById("prevBtn").addEventListener("click", () => showPositionAt(Math.max(0, currentIndex - 1)));
+    document.getElementById("nextBtn").addEventListener("click", () => showPositionAt(Math.min(game.history().length, currentIndex + 1)));
+    document.getElementById("lastBtn").addEventListener("click", () => showPositionAt());
+*/
+  var currentIndex = 0;
+    // Helper: set board to position at index
+    function showPositionAt(index) {
+      index = Math.min(Math.max(0, currentIndex+index), game.history().length); 
+      const replay = new Chess();
+      const moves = game.history({ verbose: true });
+      for (let i = 0; i < index; i++) {
+        replay.move(moves[i]);
+      }
+      board.setPosition(replay.fen());
+      currentIndex = index;
+      highlightMove(index);
+    }
 
+    // Highlight current move in PGN textarea
+    function highlightMove(index) {
+      const moves = game.history();
+      if (index === 0) {
+        PGN.setSelectionRange(0, 0);
+        return;
+      }
+      // Find substring of PGN up to that move
+      const pgnText = game.pgn();
+      const moveStr = moves[index - 1]; // last played move
+      const pos = pgnText.indexOf(moveStr);
+      if (pos !== -1) {
+        PGN.focus();
+        PGN.setSelectionRange(pos, pos + moveStr.length);
+      }
+    }
+  </script>
