@@ -99,6 +99,7 @@ Here's the board:
     var board = document.querySelector("chess-board"); // id="board" only needed if more than one
     var debugArea = document.getElementById("debug");
 function debug(str) { debugArea.value += str+"\n"; }
+  
     // Listen for piece drops
     board.addEventListener("drop", (event) => {
       const move = replay.move({ from: event.detail.source, to: event.detail.target,
@@ -116,7 +117,7 @@ function debug(str) { debugArea.value += str+"\n"; }
         game.move(move);
         PGN.value = game.pgn();
       }
-      highlightMove(currentIndex);
+      highlightMove(currentIndex+1);
     });
   
     // Helper: set board to position at index
