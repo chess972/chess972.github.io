@@ -81,25 +81,23 @@ function pgn2qs() {
 </script>
 
 Here's the board:
-<chess-board id="board" position="start"></chess-board>
+<chess-board position="start" draggable-pieces="true"></chess-board>
 <script>
-    const game = new Chess();
-    const board = document.getElementById("board");
+    var game = new Chess();
+    var board = querySelector("chess-board"); # id="board" only needed if more than one
 
     // Listen for piece drops
     board.addEventListener("drop", (event) => {
-      const move = game.move({
-        from: event.detail.source,
-        to: event.detail.target,
+      const move = game.move({ from: event.detail.source, to: event.detail.target,
         promotion: "q" // always promote to queen for simplicity
       });
+      board.setPosition(game.fen());
 
       if (move === null) {
         // Illegal move → reset board to current game state
-        board.setPosition(game.fen());
       } else {
         // Legal move → update board
-        board.setPosition(game.fen());
+        PGN.value = game.pgn();
       }
     });
 </script>
