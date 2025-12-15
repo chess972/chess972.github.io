@@ -4,7 +4,9 @@
   // window.lit = Lit; // expose globally if needed
   import "https://unpkg.com/chessboard-element?module";
   import { Chess } from "https://unpkg.com/chess.js/dist/esm/chess.js";
-  window.Chess = Chess;
+  window.game = new Chess();
+  window.replay = new Chess();
+
 </script>
 <!--minified version from cloudflare
 script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script-->
@@ -94,7 +96,6 @@ Here's the board:
 <chess-board position="start" draggable-pieces="true" style="width:50%;"></chess-board>
 <script>
     var board = document.querySelector("chess-board"); // id="board" only needed if more than one
-    var game = new Chess(), replay = new Chess();
 
     // Listen for piece drops
     board.addEventListener("drop", (event) => {
