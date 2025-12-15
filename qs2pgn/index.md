@@ -102,9 +102,12 @@ function debug(str) { debugArea.value += str+"\n"; }
   
     // Listen for piece drops
     board.addEventListener("drop", (event) => {
-      const move = replay.move({ from: event.detail.source, to: event.detail.target,
-        promotion: "q" // always promote to queen for simplicity
-      });
+      let move;
+      try { move = replay.move({ from: event.detail.source, to: event.detail.target,
+                promotion: "q" // always promote to queen for simplicity
+            });
+      } catch(err) { return"snapback"; }
+      
       board.setPosition(replay.fen());
       if (!move) return; // move was illegal: nothing happens
       const currentIndex = replay.history().length-1;
