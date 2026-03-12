@@ -1,16 +1,19 @@
-# ASCII ↔ HEX Converter
+# Unicode ↔ HEX Converter
 
-This page lets you convert text between ASCII and hexadecimal.
+This page lets you convert text between Unicode text and hexadecimal.
+
+Latin-1 characters (including control sequences like 0a for linefeed, ...) are encoded as bytes between 00 and ff.
+Unicode characters are encoded as 16-bit words, for example, 🤭 becomes d83e dd2d.
 
 <!-- Raw HTML block inside Markdown -->
 <div class="container" style="display:flex; justify-content:space-between; margin-top:1em;">
-  <textarea id="ascii" placeholder="Enter ASCII text here..." style="width:45%; height:150px; margin:0.5em;"></textarea>
+  <textarea id="ascii" placeholder="Enter text here..." style="width:45%; height:150px; margin:0.5em;"></textarea>
   <textarea id="hex" placeholder="Hex output will appear here..." style="width:45%; height:150px; margin:0.5em;"></textarea>
 </div>
 
 <div>
-  <button onclick="asciiToHex()" style="margin:0.5em; padding:0.5em 1em;">Convert ASCII → HEX</button>
-  <button onclick="hexToAscii()" style="margin:0.5em; padding:0.5em 1em;">Convert HEX → ASCII</button>
+  <button onclick="asciiToHex()" style="margin:0.5em; padding:0.5em 1em;">Convert text → hex</button>
+  <button onclick="hexToAscii()" style="margin:0.5em; padding:0.5em 1em;">Convert hex → text</button>
 </div>
 
 <script>
