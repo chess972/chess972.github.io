@@ -88,12 +88,12 @@ function qs2pgn() {
       debug("No more legal moves before end of game"); break;//SHOULD NOT HAPPEN
     }
     const bits = Math.ceil(Math.log2( legalMoves.length ));
-    const payload = bitstream.slice(pos, pos + bits);
-    if (payload.length < bits) {  // incomplete final chunk 
-      debug("Exhausted bitstream before end: needed bits = "+bits
-            +" but left with only: "+bitstream.slice(pos)); break;
+    if ( pos + bits > bitstream.length ) {  // incomplete final chunk 
+      debug("Exhausted bitstream before end: needed "+bits
+            +" bits, but left is only "+bitstream.slice(pos)); break;
     }
-    const index = parseInt(payload, 2);
+    const index = parseInt( bitstream.slice(pos, pos + bits), 2);
+    debug( "move index "+index+" in "+legalMoves )
     if (index >= legalMoves.length) {  // incomplete final chunk 
       debug( "stopping at pos="+pos+"/"+bitstream.length+", index="+index+" not valid!" ); break;
     }
