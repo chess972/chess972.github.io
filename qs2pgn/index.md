@@ -144,9 +144,9 @@ function movesToIndices() {
   let result = !game.game_over() ? 0 : !game.in_checkmate() ? 3
              : game.turn()=="b" ? 1 : 2; // 0-1 / 1-0
   if (!result) switch ( extractResultFromPGN(PGN.value) ) {
-    case: "1-0": result = 1; break;
-    case: "0-1": result = 2; break;
-    case: "1/2-1/2": result = 3; break;
+    case "1-0": result = 1; break;
+    case "0-1": result = 2; break;
+    case "1/2-1/2": result = 3; break;
   }
   const indices = [ 4 + result, 2**10 + moves.length ];
   const replay = new Chess();    // fresh game to replay
@@ -161,21 +161,16 @@ function movesToIndices() {
   }
   return indices;
 }
-
 function indicesToMoves(indices) {
   const game = new Chess();
-
   for (const idx of indices) {
     const legalMoves = game.moves();  // SAN list
-
     if (idx < 0 || idx >= legalMoves.length) {
       throw new Error("Illegal index " + idx);
     }
-
     const san = legalMoves[idx];
     game.move(san);
   }
-
   return game.pgn();
 }
 </script>
