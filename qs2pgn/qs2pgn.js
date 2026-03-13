@@ -60,7 +60,8 @@ function qs2pgn() {
   const half_moves = parseInt( bitstream.slice(2, 2+10 ), 2 );
   game.reset();
   for ( let pos = 12; pos < bitstream.length && !(game.isGameOver()); ) {
-    const legalMoves = game.moves();
+    const legalMoves = game.moves().sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+    
     if (legalMoves.length == 0) { 
       debug("No more legal moves before end of game"); break;//SHOULD NOT HAPPEN
     }
@@ -131,7 +132,7 @@ function movesToIndices() {
   const indices = [ 4 + result, 2**10 + moves.length ];
   replay.reset(); // const replay = new Chess();    // fresh game to replay
   for (const san of moves) {
-    const legalMoves = replay.moves();  // SAN list
+    const legalMoves = replay.moves().sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())); // SAN list
     const index = legalMoves.indexOf(san);
     if (index === -1) {
       throw new Error("Move not found in legal move list: " + san);
