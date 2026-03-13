@@ -82,7 +82,11 @@ function qs2pgn() {
   const result = parseInt( bitstream.slice( 0, 2 ));
   const half_moves = parseInt( bitstream.slice(2, 2+10 ));
   game.reset();
-  for ( let pos = 12; pos < bitstream.length && !game.game_over(); ) {
+  console.log("game =", game);
+console.log("type =", typeof game);
+console.log("keys =", Object.keys(game));
+
+  for ( let pos = 12; pos < bitstream.length && !(game.isGameOver()); ) {
     const legalMoves = game.moves();
     if (legalMoves.length == 0) { 
       debug("No more legal moves before end of game"); break;//SHOULD NOT HAPPEN
@@ -97,6 +101,10 @@ function qs2pgn() {
     const move = legalMoves[ parseInt(payload, 2) ];
     if (!move) break; // corrupted or truncated stream
     game.move(move);
+console.log("game =", game);
+console.log("type =", typeof game);
+console.log("keys =", Object.keys(game));
+
   } 
   debug( "Done: read "+game.history().length+" out of "+half_moves+" expected half moves");
   stepReplay(-99);
@@ -138,7 +146,7 @@ function movesToIndices() {
   //const game = new Chess();// already there as global variable
   //game.load_pgn(pgn);
   const moves = game.history();  // SAN moves
-  let result = !game.game_over() ? 0 : !game.in_checkmate() ? 3
+  let result = !game.isGameOver() ? 0 : !game.in_checkmate() ? 3
              : game.turn()=="b" ? 1 : 2; // 0-1 / 1-0
   if (!result) switch ( extractResultFromPGN(PGN.value) ) {
     case "1-0": result = 1; break;
