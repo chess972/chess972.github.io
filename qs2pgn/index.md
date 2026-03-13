@@ -71,10 +71,7 @@ if (queryString) { QS.value = queryString; checkboxChanged(); }
 <script>/*****************************/
 function base64ToBitstream(s) {
   let bits = "";
-  for (const ch of qs) {
-    const value = alphabet.indexOf(ch);
-    bits += value.toString(2).padStart(6, "0");
-  }
+  for (const c of s) bits += alphabet.indexOf(c).toString(2).padStart(6, "0");
   return bits;
 }
 function qs2pgn() {
