@@ -68,22 +68,115 @@ if (queryString) { QS.value = queryString; checkboxChanged(); }
   <button onclick="qs2pgn()" style="margin:0.5em; padding:0.5em 1em;">Convert QueryString → PGN</button>
   <button onclick="pgn2qs()" style="margin:0.5em; padding:0.5em 1em;">Convert PGN → QueryString</button>
 </div>
-<script>
-function qs2pgn() {
-  const asciiText = QS.value;
-  let hexText = "";
-  for (let i = 0; i < asciiText.length; i++) {
-    hexText += asciiText.charCodeAt(i).toString(16).padStart(2, "0") + " ";
+<script>/*****************************/
+function base64ToBitstream(s) {
+  let bits = "";
+  for (const ch of qs) {
+    const value = alphabet.indexOf(ch);
+    bits += value.toString(2).padStart(6, "0");
   }
-  PGN.value = hexText.trim();
+  return bits;
 }
+function qs2pgn() {
+  const params = new URLSearchParams(QS.value);
+  const whiteName = params.get("w");
+  const blackName = params.get("b");
+  const bitstream = base64ToBitstream(params.get("q").slice(2));  // skip "?q=01"
+  const result = parseInt( bitstream.slice( 0, 2 ));
+  const half_moves = parseInt( bitstream.slice(2, 2+10 ));
+  game.reset();
+  for ( let pos = 12; pos < bitstream.length && !game.game_over(); ) {
+    const legalMoves = game.moves();
+    if (legalMoves.length == 0) { 
+      debug("No more legal moves before end of game"); break;//SHOULD NOT HAPPEN
+    }
+    const bits = Math.ceil(Math.log2( legalMoves.length ));
+    const payload = bitstream.slice(pos, pos + bits);
+    if (payload.length < bits) {  // incomplete final chunk 
+      debug("Exhausted bitstream before end: needed bits = "+bits
+            +" but left with only: "+bitstream.slice(pos)); break;
+    }
+    pos += bits;
+    const move = legalMoves[ parseInt(payload, 2) ];
+    if (!move) break; // corrupted or truncated stream
+    game.move(move);
+  } 
+  debug( "Done: read "+game.history().length+" out of "+half_moves+" expected half moves");
+  stepReplay(-99);
+  if ( result && extractResultFromPGN(PGN.value) == "*" ) {
+    const result_text = result==1 ? "1-0" : result==2 ? "0-1" : "1/2-1/2";
+    //now insert this in [Result: "..."]
+    PGN.value = PGN.value.replace( /\[Result\s+"[^"]*"\]/, `[Result "${result_text}"]` );
+  }
+  if (whiteName) PGN.value = PGN.value.replace( /\[White\s+"[^"]*"\]/, `[White "${whiteName}"]` );
+  if (blackName) PGN.value = PGN.value.replace( /\[Black\s+"[^"]*"\]/, `[Black "${blackName}"]` );
+}
+// our custom Base64 encoding
+const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";  
 function pgn2qs() {
-  const hexText = PGN.value.trim();
-  let asciiText = "";
-  hexText.split(/\s+/).forEach(h => {
-    if (h) asciiText += String.fromCharCode(parseInt(h, 16));
-  });
-  QS.value = asciiText;
+  let qs = "?q=01", bitQueue = ""; //result
+  const moveList = movesToIndices(); // the first two "indices" give the result and # moves
+  for (const encoded of indices) {
+    bitQueue += encoded.toString(2).slice(1); // remove leading bit
+    while (bitQueue.length >= 6) {
+       qs += alphabet[ parseInt( bitQueue.slice(0, 6), 2) ];
+       bitQueue = bitQueue.slice(6);
+    }
+  }
+  if (bitQueue.length > 0) {
+     qs += alphabet[ parseInt( bitQueue.padEnd(6, "0"), 2) ];
+  }
+  QS.value = qs;
+}
+function extractResultFromPGN(pgn) {
+  const match = pgn.match(/\[Result\s+"([^"]+)"\]/);
+  return match ? match[1] : "*";
+}
+/* Convert the `game` to a list of numbers which represent
+ * (the index of each move within the move list) + min { 2^N > number of possible moves }.
+ * The two first items of the list code the result and the total number of half-moves.
+ * result = 4 + (0 if unfinished else 1 if 1-0 else 2 if 0-1 else 3 [if 1/2-1/2]).
+ */
+function movesToIndices() {
+  //const game = new Chess();// already there as global variable
+  //game.load_pgn(pgn);
+  const moves = game.history();  // SAN moves
+  let result = !game.game_over() ? 0 : !game.in_checkmate() ? 3
+             : game.turn()=="b" ? 1 : 2; // 0-1 / 1-0
+  if (!result) switch ( extractResultFromPGN(PGN.value) ) {
+    case: "1-0": result = 1; break;
+    case: "0-1": result = 2; break;
+    case: "1/2-1/2": result = 3; break;
+  }
+  const indices = [ 4 + result, 2**10 + moves.length ];
+  const replay = new Chess();    // fresh game to replay
+  for (const san of moves) {
+    const legalMoves = replay.moves();  // SAN list
+    const index = legalMoves.indexOf(san);
+    if (index === -1) {
+      throw new Error("Move not found in legal move list: " + san);
+    }
+    indices.push( 2**Math.ceil(Math.log2(legalMoves.length)) + index );
+    replay.move(san);
+  }
+  return indices;
+}
+
+function indicesToMoves(indices) {
+  const game = new Chess();
+
+  for (const idx of indices) {
+    const legalMoves = game.moves();  // SAN list
+
+    if (idx < 0 || idx >= legalMoves.length) {
+      throw new Error("Illegal index " + idx);
+    }
+
+    const san = legalMoves[idx];
+    game.move(san);
+  }
+
+  return game.pgn();
 }
 </script>
 
