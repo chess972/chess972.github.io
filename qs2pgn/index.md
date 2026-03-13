@@ -79,8 +79,8 @@ function qs2pgn() {
   const whiteName = params.get("w");
   const blackName = params.get("b");
   const bitstream = base64ToBitstream(params.get("q").slice(2));  // skip "?q=01"
-  const result = parseInt( bitstream.slice( 0, 2 ));
-  const half_moves = parseInt( bitstream.slice(2, 2+10 ));
+  const result = parseInt( bitstream.slice( 0, 2 ), 2 );
+  const half_moves = parseInt( bitstream.slice(2, 2+10 ), 2 );
   game.reset();
   for ( let pos = 12; pos < bitstream.length && !(game.isGameOver()); ) {
     const legalMoves = game.moves();
@@ -98,7 +98,7 @@ function qs2pgn() {
       debug( "stopping at pos="+pos+"/"+bitstream.length+", index="+index+" not valid!" ); break;
     }
     pos += bits;
-    const move = legalMoves[ idx ];
+    const move = legalMoves[ index ];
     if (!move) break; // corrupted or truncated stream
     game.move(move);
   } 
