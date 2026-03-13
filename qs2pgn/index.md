@@ -6,7 +6,7 @@
   import { Chess } from "https://unpkg.com/chess.js/dist/esm/chess.js";
   window.game = new Chess();
   window.replay = new Chess();
-
+  //window.Chess = Chess; // in case we'd want to use it elsewhere
 </script>
 <!--minified version from cloudflare
 script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script-->
@@ -150,7 +150,7 @@ function movesToIndices() {
     case "1/2-1/2": result = 3; break;
   }
   const indices = [ 4 + result, 2**10 + moves.length ];
-  const replay = new Chess();    // fresh game to replay
+  replay.reset(); // const replay = new Chess();    // fresh game to replay
   for (const san of moves) {
     const legalMoves = replay.moves();  // SAN list
     const index = legalMoves.indexOf(san);
@@ -161,18 +161,6 @@ function movesToIndices() {
     replay.move(san);
   }
   return indices;
-}
-function indicesToMoves(indices) {
-  const game = new Chess();
-  for (const idx of indices) {
-    const legalMoves = game.moves();  // SAN list
-    if (idx < 0 || idx >= legalMoves.length) {
-      throw new Error("Illegal index " + idx);
-    }
-    const san = legalMoves[idx];
-    game.move(san);
-  }
-  return game.pgn();
 }
 </script>
 
