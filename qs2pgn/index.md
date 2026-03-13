@@ -101,8 +101,9 @@ function qs2pgn() {
     const move = legalMoves[ index ];
     if (!move) break; // corrupted or truncated stream
     game.move(move);
-  } 
+  }
   debug( "Done: read "+game.history().length+" out of "+half_moves+" expected half moves");
+  PGN.value = game.pgn();
   stepReplay(-99);
   if ( result && extractResultFromPGN(PGN.value) == "*" ) {
     const result_text = result==1 ? "1-0" : result==2 ? "0-1" : "1/2-1/2";
@@ -117,7 +118,7 @@ const alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
 function pgn2qs() {
   let qs = "?q=01", bitQueue = ""; //result
   const moveList = movesToIndices(); // the first two "indices" give the result and # moves
-  for (const encoded of indices) {
+  for (const encoded of moveList) {
     bitQueue += encoded.toString(2).slice(1); // remove leading bit
     while (bitQueue.length >= 6) {
        qs += alphabet[ parseInt( bitQueue.slice(0, 6), 2) ];
