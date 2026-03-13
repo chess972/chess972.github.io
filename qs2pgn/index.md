@@ -82,10 +82,6 @@ function qs2pgn() {
   const result = parseInt( bitstream.slice( 0, 2 ));
   const half_moves = parseInt( bitstream.slice(2, 2+10 ));
   game.reset();
-  console.log("game =", game);
-console.log("type =", typeof game);
-console.log("keys =", Object.keys(game));
-
   for ( let pos = 12; pos < bitstream.length && !(game.isGameOver()); ) {
     const legalMoves = game.moves();
     if (legalMoves.length == 0) { 
@@ -97,14 +93,14 @@ console.log("keys =", Object.keys(game));
       debug("Exhausted bitstream before end: needed bits = "+bits
             +" but left with only: "+bitstream.slice(pos)); break;
     }
+    const index = parseInt(payload, 2);
+    if (index >= legalMoves.length) {  // incomplete final chunk 
+      debug( "stopping at pos="+pos+"/"+bitstream.length+", index="+index+" not valid!" ); break;
+    }
     pos += bits;
-    const move = legalMoves[ parseInt(payload, 2) ];
+    const move = legalMoves[ idx ];
     if (!move) break; // corrupted or truncated stream
     game.move(move);
-console.log("game =", game);
-console.log("type =", typeof game);
-console.log("keys =", Object.keys(game));
-
   } 
   debug( "Done: read "+game.history().length+" out of "+half_moves+" expected half moves");
   stepReplay(-99);
