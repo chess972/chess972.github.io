@@ -27,10 +27,11 @@ This page lets you convert between a QueryString and PGN.
 <br/>
   <textarea id="qs" placeholder="QueryString:" style="width:95%; height:50px; margin:0.5em;"></textarea>
   <textarea id="pgn" placeholder="PGN" style="width:60%; height:150px; margin:0.5em;"></textarea>
-</div>
-<div>
+<br/>
   <button onclick="qs2pgn()" style="margin:0.5em; padding:0.5em 1em;">Convert QueryString → PGN</button>
   <button onclick="pgn2qs()" style="margin:0.5em; padding:0.5em 1em;">Convert PGN → QueryString</button>
+  Encoding:&nbsp;<input type="number" id="encoding" min="00" max="255" value="09"
+                  oninput="this.value=this.value.padStart(3,'0').slice(this.value<100);" />  
 </div>
 
 Here's the board at move <input id="move_number" value="1." size=8>:
