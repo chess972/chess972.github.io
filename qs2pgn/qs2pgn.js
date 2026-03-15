@@ -11,6 +11,7 @@ we have a <script type="module"> which imports lit & chess:
 ***/
   const game = new Chess();
   const replay = new Chess();
+const SQUARES = [..."abcdefgh"].flatMap(f => [..."12345678"].map(r => f + r) );
 
   // NOTE : use var not const to make these globally available (esp. in onClick=...)
   var prefixCheckbox = document.getElementById("prefixCheckbox");
@@ -60,8 +61,8 @@ function moveList(game){// return SAN move list sorted according to the chosen e
       return game.moves({verbose: true}).sort((a, b) =>
         a.piece != b.piece ? PIECES.indexOf(a.piece) - PIECES.indexOf(b.piece) :
         // NOTE: chess.js uses SQUARES=[a8...h8, ..., a1...h1] !
-        (a.from != b.from ? Chess.SQUARES.indexOf(b.from) - Chess.SQUARES.indexOf(a.from) : 
-          Chess.SQUARES.indexOf(b.to) - Chess.SQUARES.indexOf(a.to) 
+        (a.from != b.from ? SQUARES.indexOf(b.from) - SQUARES.indexOf(a.from) : 
+          SQUARES.indexOf(b.to) - SQUARES.indexOf(a.to) 
          )*turn 
         ).map( move => move.san );
     case "01": // ChessQR '01' encoding // not implemented yet 
@@ -70,7 +71,6 @@ function moveList(game){// return SAN move list sorted according to the chosen e
         a.piece != b.piece ? PIECES.indexOf(a.piece) - PIECES.indexOf(b.piece) :
         // we want:              v-- g6-g7 comes after h4-h6
         // if turn = BLACK: ... f5, h6, h5, g5, Nc6, Na6, Nh6, Nf6, Bg7, Bh6 ...
-        a.from != b.from ? Chess.SQUARES.indexOf(b.from) - Chess.SQUARES.indexOf(a.from) : 
         // otherwise sort first according to FROM, then TO square; ranks come before files, and reversed for BLACK.
         (a.lan[1] != b.lan[1] ? a.lan[1] - b.lan[1] :
          a.lan[0] != b.lan[0] ? a.lan[0] - b.lan[0] :
