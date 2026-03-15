@@ -1,4 +1,4 @@
-/*** QueryString ↔ PGN Converter JavaScript
+/*** QueryString ↔ PGN Converter JavaScript (c) 2025-2026 by MFH
 
 In the main file, 
 we have a <script type="module"> which imports lit & chess:
@@ -32,36 +32,64 @@ function checkboxChanged() { // uses global var QS only defined later
     // Reset button → restore current page's base URL
     resetBtn.addEventListener("click", () => {
       baseUrlInput.value = BaseUrl;
-    });
-    // chessQR button → set to http://chessqr.com/
-    chessQRBtn.addEventListener("click", () => {
-      baseUrlInput.value = "...";
-    });
-************/
-
+    });   // chessQR button → set to http://chessqr.com/
+******/
   var QS = document.getElementById("qs");
   var PGN = document.getElementById("pgn");
   var queryString = window.location.search;// e.g.: "?foo=1&bar=2"
   var params = new URLSearchParams(queryString);
   if (queryString) { QS.value = queryString; checkboxChanged(); }
+  var Encoding = document.getElementById('encoding');
+QS.addEventListener("change", () => {
+    const qs = new URLSearchParams(QS.value), q = qs.get('q');
+    if ( q ) Encoding.value = q.slice(0,2);
+});
 
-function base64ToBitstream(s) {
+function base64ToBitstream(s) {// translate base64 string to binary string
   let bits = "";
   for (const c of s) bits += alphabet.indexOf(c).toString(2).padStart(6, "0");
   return bits;
 }
-
+const PIECES = "pnbrqk"; // for sorting of moves
+function moveList(game){// return SAN move list sorted according to the chosen encoding
+  const turn = game.turn()=='w' ? 1 : -1; // flips order of some sorting
+  switch ( Encoding.value ) {
+    case "02": // case insensitive alphabetic sort (according to SAN value)
+      return games.moves().sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));  
+    case "02": // experimental
+      return games.moves({verbose: true}).sort((a, b) =>
+        a.piece != b.piece ? PIECES.indexOf(a.piece) - PIECES.indexOf(b.piece) :
+        // NOTE: chess.js uses SQUARES=[a8...h8, ..., a1...h1] !
+        (a.from != b.from ? Chess.SQUARES.indexOf(b.from) - Chess.SQUARES.indexOf(a.from) : 
+          Chess.SQUARES.indexOf(b.to) - Chess.SQUARES.indexOf(a.to) 
+         )*turn 
+        ).map( move => move.san );
+    case "01": // ChessQR '01' encoding // not implemented yet 
+    case "00": // Python-chess ordering // to be double-checked
+      return games.moves({verbose: true}).sort((a, b) =>
+        a.piece != b.piece ? PIECES.indexOf(a.piece) - PIECES.indexOf(b.piece) :
+        // we want:              v-- g6-g7 comes after h4-h6
+        // if turn = BLACK: ... f5, h6, h5, g5, Nc6, Na6, Nh6, Nf6, Bg7, Bh6 ...
+        (a.from != b.from ? Chess.SQUARES.indexOf(b.from) - Chess.SQUARES.indexOf(a.from) : 
+        // otherwise sort first according to FROM, then TO square; ranks come before files, and reversed for BLACK.
+        (a.lan[1] != b.lan[1] ? a.lan[1] - b.lan[1] :
+         a.lan[0] != b.lan[0] ? a.lan[0] - b.lan[0] :
+         a.lan[3] != b.lan[3] ? a.lan[3] - b.lan[3] : a.lan[2] - b.lan[2] )*turn 
+        ).map( move => move.san );     
+  }// default: no sorting; use chess.js default order
+  return games.moves();
+}
 function qs2pgn() {
   const params = new URLSearchParams(QS.value);
   const whiteName = params.get("w");
   const blackName = params.get("b");
+  encoding = params.get("q").slice(0,2);
   const bitstream = base64ToBitstream(params.get("q").slice(2));  // skip "?q=01"
   const result = parseInt( bitstream.slice( 0, 2 ), 2 );
   const half_moves = parseInt( bitstream.slice(2, 2+10 ), 2 );
   game.reset();
-  for ( let pos = 12; pos < bitstream.length && !(game.isGameOver()); ) {
-    const legalMoves = game.moves().sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-    
+  for ( let pos = 12; pos < bitstream.length && !game.isGameOver(); ) {
+    const legalMoves = moveList(game);
     if (legalMoves.length == 0) { 
       debug("No more legal moves before end of game"); break;//SHOULD NOT HAPPEN
     }
@@ -131,14 +159,14 @@ function movesToIndices() {
   }
   const indices = [ 4 + result, 2**10 + moves.length ];
   replay.reset(); // const replay = new Chess();    // fresh game to replay
-  for (const san of moves) {
-    const legalMoves = replay.moves().sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())); // SAN list
-    const index = legalMoves.indexOf(san);
+  for (const move of moves) {
+    const legalMoves = moveList(replay); // can be just SAN, or Move objects
+    const index = legalMoves.indexOf(move);
     if (index === -1) {
-      throw new Error("Move not found in legal move list: " + san);
+      throw new Error("Move not found in legal move list: " + move);
     }
     indices.push( 2**Math.ceil(Math.log2(legalMoves.length)) + index );
-    replay.move(san);
+    replay.move(move);
   }
   return indices;
 }
