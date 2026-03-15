@@ -70,7 +70,7 @@ function moveList(game){// return SAN move list sorted according to the chosen e
         a.piece != b.piece ? PIECES.indexOf(a.piece) - PIECES.indexOf(b.piece) :
         // we want:              v-- g6-g7 comes after h4-h6
         // if turn = BLACK: ... f5, h6, h5, g5, Nc6, Na6, Nh6, Nf6, Bg7, Bh6 ...
-        (a.from != b.from ? Chess.SQUARES.indexOf(b.from) - Chess.SQUARES.indexOf(a.from) : 
+        a.from != b.from ? Chess.SQUARES.indexOf(b.from) - Chess.SQUARES.indexOf(a.from) : 
         // otherwise sort first according to FROM, then TO square; ranks come before files, and reversed for BLACK.
         (a.lan[1] != b.lan[1] ? a.lan[1] - b.lan[1] :
          a.lan[0] != b.lan[0] ? a.lan[0] - b.lan[0] :
