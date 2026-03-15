@@ -55,9 +55,9 @@ function moveList(game){// return SAN move list sorted according to the chosen e
   const turn = game.turn()=='w' ? 1 : -1; // flips order of some sorting
   switch ( Encoding.value ) {
     case "02": // case insensitive alphabetic sort (according to SAN value)
-      return games.moves().sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));  
+      return game.moves().sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));  
     case "02": // experimental
-      return games.moves({verbose: true}).sort((a, b) =>
+      return game.moves({verbose: true}).sort((a, b) =>
         a.piece != b.piece ? PIECES.indexOf(a.piece) - PIECES.indexOf(b.piece) :
         // NOTE: chess.js uses SQUARES=[a8...h8, ..., a1...h1] !
         (a.from != b.from ? Chess.SQUARES.indexOf(b.from) - Chess.SQUARES.indexOf(a.from) : 
@@ -66,7 +66,7 @@ function moveList(game){// return SAN move list sorted according to the chosen e
         ).map( move => move.san );
     case "01": // ChessQR '01' encoding // not implemented yet 
     case "00": // Python-chess ordering // to be double-checked
-      return games.moves({verbose: true}).sort((a, b) =>
+      return game.moves({verbose: true}).sort((a, b) =>
         a.piece != b.piece ? PIECES.indexOf(a.piece) - PIECES.indexOf(b.piece) :
         // we want:              v-- g6-g7 comes after h4-h6
         // if turn = BLACK: ... f5, h6, h5, g5, Nc6, Na6, Nh6, Nf6, Bg7, Bh6 ...
@@ -77,7 +77,7 @@ function moveList(game){// return SAN move list sorted according to the chosen e
          a.lan[3] != b.lan[3] ? a.lan[3] - b.lan[3] : a.lan[2] - b.lan[2] )*turn 
         ).map( move => move.san );     
   }// default: no sorting; use chess.js default order
-  return games.moves();
+  return game.moves();
 }
 function qs2pgn() {
   const params = new URLSearchParams(QS.value);
