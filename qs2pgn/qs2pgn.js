@@ -93,7 +93,7 @@ function qs2pgn() {
     if (legalMoves.length == 0) { 
       debug("No more legal moves before end of game"); break;//SHOULD NOT HAPPEN
     }
-    const bits = Math.floor(Math.log2( legalMoves.length+1 ));
+    const bits = Math.floor(Math.log2( legalMoves.length )+1);
     if ( pos + bits > bitstream.length ) {  // incomplete final chunk 
       debug("Exhausted bitstream before end: needed "+bits
             +" bits, but left is only "+bitstream.slice(pos)); break;
@@ -165,7 +165,7 @@ function movesToIndices() {
     if (index === -1) {
       throw new Error("Move not found in legal move list: " + move);
     }
-    indices.push( 2**Math.floor(Math.log2(legalMoves.length + 1)) + index );
+    indices.push( 2**Math.floor(Math.log2(legalMoves.length) + 1) + index );
     replay.move(move);
   }
   return indices;
